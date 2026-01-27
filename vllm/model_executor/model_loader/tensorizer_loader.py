@@ -77,10 +77,9 @@ class TensorizerLoader(BaseModelLoader):
         be faster than default HuggingFace loading, but will be slower than
         loading a vLLM-tensorized model.
         """
-        device_config = vllm_config.device_config
         model_config = vllm_config.model_config
         with set_default_torch_dtype(model_config.dtype):
-            with torch.device(device_config.device):
+            with torch.device("meta"):
                 model = initialize_model(vllm_config=vllm_config, prefix=prefix)
 
             model.load_weights(self._get_weights_iterator())
@@ -127,9 +126,8 @@ class TensorizerLoader(BaseModelLoader):
 
         if is_vllm_tensorized(self.tensorizer_config):
             tensorizer_config = self._patch_tensorizer_config(model_config)
-            device_config = vllm_config.device_config
             with set_default_torch_dtype(model_config.dtype):
-                with torch.device(device_config.device):
+                with torch.device("meta"):
                     model = init_tensorizer_model(
                         tensorizer_config=tensorizer_config, vllm_config=vllm_config
                     )
